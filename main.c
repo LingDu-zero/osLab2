@@ -3,15 +3,15 @@
 #include <conio.h>
 #include <pthread.h>
 
-enum Direction {down,up};
-pthread_t thread[3];
+enum Direction {down,up}; //确定方向
+pthread_t thread[3];  //线程（测试ing）
 
-void display(int floor, Direction drc);
-Direction floor_first();
-Direction floor_second();
-Direction floor_third();
-int lift_floor();
-bool lift_switch();
+void display(int floor, Direction drc); //显示电梯运行状态
+Direction floor_first();  //接收一层方向信号
+Direction floor_second(); //接收二层方向信号
+Direction floor_third(); //接收三层方向信号
+int lift_floor(); //接收电梯内部去往层数
+bool lift_switch(); //接收电梯的开与关
 
 void display(int floor, Direction drc) {
 	if (drc == down)
@@ -55,10 +55,13 @@ int lift_floor() {
 	return lift_floor;
 }
 
+//暂时不写
 bool lift_switch() {
 
 }
 
+//线程均在测试中
+/***
 void *thread1() {
 	const int floor = 1;
 	display(floor, up);
@@ -80,6 +83,7 @@ void *thread1() {
 void thread_create() {
 
 }
+***/
 
 int main(void) {
 	char s;
