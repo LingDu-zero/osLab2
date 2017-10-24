@@ -2,6 +2,8 @@
 #include <stdlib.h>
 #include <conio.h>
 #include <pthread.h>
+#include <sys/types.h>
+#include <unistd.h>
 
 enum Direction {down,up}; //确定方向
 pthread_t thread[3];  //线程（测试ing）
@@ -85,9 +87,22 @@ void thread_create() {
 }
 ***/
 
+int create(int floor_number_or_control)
+{
+	pid_t floor_number_or_control = fork();
+	printf(floor_number_or_control 'pid is == %d/n', getpid());
+	return 0;
+}
+//建立多个进程，进程部分应该在window无法运行，可以在linux尝试发
+//这里只是加入创立函数，各进程功能未划分
+
 int main(void) {
 	char s;
 	Direction d;
+	create(floor_first);
+	create(floor_second);
+	create(floor_third);
+	create(control);
 	while (true) {
 		while (s = _kbhit()) {
 			switch (s) {
