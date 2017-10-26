@@ -4,57 +4,45 @@
 #include <pthread.h>
 #include <sys/types.h>
 #include <unistd.h>
+#include <time.h>
 
 enum Direction {down,up}; //确定方向
 pthread_t thread[3];  //线程（测试ing）
 
-void display(int floor, Direction drc); //显示电梯运行状态
-Direction floor_first();  //接收一层方向信号
-Direction floor_second(); //接收二层方向信号
-Direction floor_third(); //接收三层方向信号
-int lift_floor(); //接收电梯内部去往层数
+void display(int floor, Direction drc); //用于响应有人等待后信息展示
+bool isPerson();// 判断是否有人等待
+Direction isDirection();//用于第二层人判断方向
+int isFloor(int now_floor);//用于电梯面板内层数选择
+
 bool lift_switch(); //接收电梯的开与关
 
 void display(int floor, Direction drc) {
 	if (drc == down)
-		printf("In the %d floor and go down\n", floor);
+		printf("%d floor is waiting, %c\n", floor, 25);
 	else if (drc == up)
-		printf("In the %d floor and go up\n", floor);
+		printf("%d floor is waiting, %c\n", floor, 24);
+}
+
+bool isPerson() {
+	srand(unsigned(time(NULL)));
+	int r = rand() % 10;
+	if (r > 6)
+		return true;
 	else
-		printf("error in display");
+		return false;
 }
 
-Direction floor_first() {
-	char a;
-	printf("you'r in the first floor, do you want to go up(y/n)?\n");
-	scanf_s("%c", &a);
-	if (a == 'y')
-		return up;
+Direction isDirection() {
+	srand(unsigned(time(NULL)));
+	Direction r = Direction(rand() % 2);
+	return r;
 }
 
-Direction floor_second() {
-	char a;
-	printf("you'r in the second floor, do you want to go up or down(u/d)?\n");
-	scanf_s("%c", &a);
-	if (a == 'u')
-		return up;
-	else if (a == 'd')
-		return down;
-}
-
-Direction floor_third() {
-	char a;
-	printf("you'r in the second floor, do you want to go down(y/n)?\n");
-	scanf_s("%c", &a);
-	if (a == 'y')
-		return down;
-}
-
-int lift_floor() {
-	int lift_floor;
-	printf("How many floors do you want to(1/2/3)?");
-	scanf_s("%d", &lift_floor);
-	return lift_floor;
+int isFloor(int now_floor) {
+	srand(unsigned(time(NULL)));
+	int r;
+	while (now_floor == (r = rand() % 3 + 1));
+	return r;
 }
 
 //暂时不写
@@ -103,16 +91,6 @@ int main(void) {
 	create(floor_second);
 	create(floor_third);
 	create(control);
-	while (true) {
-		while (s = _kbhit()) {
-			switch (s) {
-			case'1':d = floor_first(); break;
-			case'2':d = floor_second(); break;
-			case'3':d = floor_third(); break;
-			default:continue;
-			}
-		}
-	}
 
 	system("pause");
 	return 0;
