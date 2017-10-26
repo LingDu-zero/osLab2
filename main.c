@@ -1,13 +1,11 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <conio.h>
-#include <pthread.h>
 #include <sys/types.h>
 #include <unistd.h>
 #include <time.h>
 
 enum Direction {down,up}; //确定方向
-pthread_t thread[3];  //线程（测试ing）
 
 void display(int floor, Direction drc); //用于响应有人等待后信息展示
 bool isPerson();// 判断是否有人等待
@@ -49,31 +47,6 @@ int isFloor(int now_floor) {
 bool lift_switch() {
 
 }
-
-//线程均在测试中
-/***
-void *thread1() {
-	const int floor = 1;
-	display(floor, up);
-	floor_first();
-}
-
-void *thread1() {
-	const int floor = 2;
-	display(floor, up);
-	floor_first();
-}
-
-void *thread1() {
-	const int floor = 3;
-	display(floor, up);
-	floor_first();
-}
-
-void thread_create() {
-
-}
-***/
 
 int create(int floor_number_or_control)
 {
