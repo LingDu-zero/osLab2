@@ -8,7 +8,18 @@ int main()
 	while (1)
 	{
 		printf("this is the direcion:\n");
-		putchar(floor_1);
+		if (floor_1 == up)
+		{
+			printf("up");
+		}
+		else if (floor_1 == down)
+		{
+			printf("down");
+		}
+		else
+		{
+			printf("NULL");
+		}
 		printf("the is the floor number now: %d\t", floor_now);
 	}
 	return 0;
