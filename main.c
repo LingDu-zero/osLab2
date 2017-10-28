@@ -14,8 +14,27 @@ int isFloor(int now_floor);//用于电梯面板内层数选择
 process floor_first();//进程一层
 process floor_seconde();//进程二层
 process floor_third();//进程三层
+process lift_panel();//进程电梯面板
+process lift();//进程电梯运行
 
 bool lift_switch(); //接收电梯的开与关
+
+process lift(){
+	while(true){
+		
+	}
+}
+
+process lift_panel(){
+	int aim_floor;
+	while (true) {
+		aim_floor = isFloor();
+		/***
+		临界区
+		***/
+		V(panel);//控制panel进程睡眠
+	}
+}
 
 process floor_fisrt() {
 	semaphore person = 0;//信号量Person判断是否有人
