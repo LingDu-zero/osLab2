@@ -20,8 +20,22 @@ process lift();//进程电梯运行
 bool lift_switch(); //接收电梯的开与关
 
 process lift(){
+	int now_floor;
 	while(true){
-		
+		P(signal);//先判断是否有信号，没有则睡眠
+		P(mutex);
+		aim_floor and now_floor;//提取信号队列第一项
+		if(aim_floor>now_floor)
+			while(aim_floor!=now_floor){
+				now_floor++;
+				sleep(1);
+				//判断当前楼层是否有信号以及是否同向
+				if(true){
+					lift_open();
+					sleep(1);
+					
+		else if(aim_floor<now_floor)
+			lift_down();
 	}
 }
 
@@ -37,9 +51,9 @@ process lift_panel(){
 }
 
 process floor_fisrt() {
-	semaphore person = 0;//信号量Person判断是否有人
+	semaphore person_1 = 0;//信号量Person判断是否有人
 	while (true) {
-		if (person == 0) {
+		if (person_1 == 0) {
 			if (isPerson()) {
 				P(person);//有人则增加，人进电梯后V(Person)，进程通信
 				/***
@@ -91,9 +105,9 @@ process floor_second() {
 }
 
 process floor_third() {
-	semaphore person = 0;
+	semaphore person_2 = 0;
 	while (true) {
-		if (person == 0) {
+		if (person_2 == 0) {
 			if (isPerson()) {
 				P(person);
 				/***
