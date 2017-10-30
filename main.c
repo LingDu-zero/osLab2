@@ -11,11 +11,11 @@ void display(int floor, Direction drc); //用于响应有人等待后信息展�
 bool isPerson();// 判断是否有人等待
 Direction isDirection();//用于第二层人判断方向
 int isFloor(int now_floor);//用于电梯面板内层数选择
-process floor_first();//进程一层
-process floor_seconde();//进程二层
-process floor_third();//进程三层
-process lift_panel();//进程电梯面板
-process lift();//进程电梯运行
+void floor_first();//进程一层
+void floor_seconde();//进程二层
+void floor_third();//进程三层
+void lift_panel();//进程电梯面板
+void lift();//进程电梯运行
 
 bool lift_switch(); //接收电梯的开与关
 
