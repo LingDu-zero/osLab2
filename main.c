@@ -4,6 +4,7 @@
 #include <sys/types.h>
 #include <unistd.h>
 #include <time.h>
+#include"semaphore.c"
 
 enum Direction {down,up}; //确定方向
 
