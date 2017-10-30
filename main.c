@@ -33,34 +33,62 @@ process lift(){
 	int i=0;
 	while(true){
 		P(signal);//先判断是否有信号，没有则睡眠
-		P(mutex);
-		while(!signal[i++]);
-		aim_floor = i;//提取有信号的项
+		for(int i=0;i<3;i++)//提取上行下行中的一个信号作为目标方向
+			if(up[i]||down[i]||signal[i]){
+				aim_floor=i;
+				break;
+			}
 		if(aim_floor > now_floor)
 			while(aim_floor!=now_floor){
 				now_floor++;
-				sleep(1);
-				//判断当前楼层是否有信号以及是否同向
-				if(up[now_floor]){
-					lift_open();
-					sleep(1);
-					V(panel);
-					sleep(1);
+				sleep(2); //上一层楼2s
+				if(up[now_floor]){ //判断当前方向是否存在人
+					P(mutex);
+					up[now_floor]=false;
+					P(signal);
+					V(mutex);
+					V(panel);//唤醒面板进程确定去向
 				}
+				if(signal[now_floor]){
+					P(mutex);
+					signal[now_floor]=false;
+					P(signal);
+					V(mutex);
+				}
+				sleep(1);//开门1s
+				sleep(1);//关门1s
 			}		
 		else if(aim_floor<now_floor)
 			while(aim_floor!=now_floor){
 				now_floor--;
-				sleep(1);
-				//判断当前楼层是否有信号以及是否同向
+				sleep(2);
 				if(down[now_floor]){
-					lift_open();
-					sleep(1);
+					P(mutex);
+					down[now_floor]=false;
+					P(signal);
+					V(mutex);
 					V(panel);
-					sleep(1);
 				}
+				if(signal[now_floor]){
+					P(mutex);
+					signal[now_floor]=false;
+					P(signal);
+					V(mutex);
+				}
+				sleep(1);
+				sleep(1);
 			}
-		
+		else{                       //如果目标层即是当前层，开门
+			P(mutex);
+			if(up[now_floor])
+				up[now_floor]=false;
+			else
+				down[now_floor]=false;
+			V(mutex);
+			V(panel);
+			sleep(1);
+			sleep(1);
+		}
 	}
 }
 
@@ -74,53 +102,36 @@ process lift_panel(){
 }
 
 process floor_fisrt() {
-	semaphore person_1 = 0;//信号量Person判断是否有人
 	while (true) {
-		if (person_1 == 0) {
-			if (isPerson()) {
-				P(person_1);//有人则增加，人进电梯后V(Person)，进程通信
-				/***
-				临界区
-				***/
-				display(1, up);
-			}
-		}
-		else if (person_1 == 1)
+		if (isPerson()) {
+			P(mutex);
+			up[1]=true;
+			V(signal);
+			V(mutex);	
 			display(1, up);
-		else
-			printf("1 floor person error\n");
+		}
 		sleep(1);
 	}
 }
 
 process floor_second() {
 	Direction drc;
-	semaphore u = 0;
-	semaphore d = 0;
 	while (true) {
 		if (isPerson()) {
 			drc = isDirection();
 			if (drc == up) {
-				if (u == 0) {
-					P(u);
-					display(2, up);
-					/***
-					临界区
-					***/
-				}
-				else
-					display(2, up);
+				P(mutex);
+				up[2]=true;
+				V(signal);
+				V(mutex);
+				display(2,up);
 			}
 			else if (drc == down) {
-				if (d == 0) {
-					P(d);
-					display(2, down);
-					/***
-					临界区
-					***/
-				}
-				else
-					display(2, down);
+				P(mutex);
+				down[2]=true;
+				V(signal);
+				V(mutex);
+				display(2, down);
 			}
 		}
 		sleep(1);
@@ -128,21 +139,14 @@ process floor_second() {
 }
 
 process floor_third() {
-	semaphore person_2 = 0;
 	while (true) {
-		if (person_2 == 0) {
-			if (isPerson()) {
-				P(person);
-				/***
-				临界区
-				***/
-				display(3, down);
-			}
-		}
-		else if (person == 1)
+		if (isPerson()) {
+			P(mutex);
+			down[3]=true;
+			V(signal);
+			V(mutex);	
 			display(3, down);
-		else
-			printf("3 floor person error\n");
+		}
 		sleep(1);
 	}
 }
@@ -174,11 +178,6 @@ int isFloor(int now_floor) {
 	int r;
 	while (now_floor == (r = rand() % 3 + 1));
 	return r;
-}
-
-//暂时不写
-bool lift_switch() {
-
 }
 
 int create(int floor_number_or_control)
