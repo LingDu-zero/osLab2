@@ -55,8 +55,3 @@ sem_un.val = 1;
 semctl(sem_id, 0, SETVAL, sem_un);
 */
 
-
-	
-
-
-
