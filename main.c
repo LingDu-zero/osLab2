@@ -27,7 +27,7 @@ bool up[3] = {false};
 bool down[3] = {false};
 bool signal[3] = {false};
 
-process lift(){
+void lift(){
 	int now_floor=1;
 	int aim_floor;
 	int i=0;
@@ -92,7 +92,7 @@ process lift(){
 	}
 }
 
-process lift_panel(){
+void lift_panel(){
 	int aim_floor_panel;
 	while (true) {
 		P(panel);//控制panel进程睡眠
@@ -101,7 +101,7 @@ process lift_panel(){
 	}
 }
 
-process floor_fisrt() {
+void floor_fisrt() {
 	while (true) {
 		if (isPerson()) {
 			P(mutex);
@@ -114,7 +114,7 @@ process floor_fisrt() {
 	}
 }
 
-process floor_second() {
+void floor_second() {
 	Direction drc;
 	while (true) {
 		if (isPerson()) {
@@ -138,7 +138,7 @@ process floor_second() {
 	}
 }
 
-process floor_third() {
+void floor_third() {
 	while (true) {
 		if (isPerson()) {
 			P(mutex);
@@ -180,7 +180,7 @@ int isFloor(int now_floor) {
 	return r;
 }
 
-int create(int floor_number_or_control)
+void create(int floor_number_or_control)
 {
 	pid_t floor_number_or_control = fork();
 	printf(floor_number_or_control 'pid is == %d/n', getpid());
@@ -192,11 +192,37 @@ int create(int floor_number_or_control)
 int main(void) {
 	char s;
 	Direction d;
-	create(floor_first);
-	create(floor_second);
-	create(floor_third);
-	create(control);
+	int floor_first, floor_second, floor_third, lift_panel, lift;
 
+	create(floor_first);
+	if (floor_first == 0) {
+		process floor_first();//执行进程一层
+		return 0;
+	}
+
+	create(floor_second);
+	if (floor_second == 0) {
+		process floor_seconde();//进程二层
+		return 0;
+	}
+	create(floor_third);
+	if (floor_third == 0) {
+		process floor_third();//进程三层
+
+		return 0;
+	}
+
+	create(lift_panel);
+	if (lift_panel==0) {
+		process lift_panel();//进程电梯面板
+	}
+
+
+	create(lift);
+	if (lift == 0) {
+		process lift();//进程电梯运行
+		return 0;
+	}
 	system("pause");
 	return 0;
 }
