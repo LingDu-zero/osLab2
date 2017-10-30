@@ -19,34 +19,57 @@ process lift();//进程电梯运行
 
 bool lift_switch(); //接收电梯的开与关
 
+semaphore signal=0;
+semaphore mutex=1;
+semaphore panel=0;
+
+bool up[3] = {false};
+bool down[3] = {false};
+bool signal[3] = {false};
+
 process lift(){
-	int now_floor;
+	int now_floor=1;
+	int aim_floor;
+	int i=0;
 	while(true){
 		P(signal);//先判断是否有信号，没有则睡眠
 		P(mutex);
-		aim_floor and now_floor;//提取信号队列第一项
-		if(aim_floor>now_floor)
+		while(!signal[i++]);
+		aim_floor = i;//提取有信号的项
+		if(aim_floor > now_floor)
 			while(aim_floor!=now_floor){
 				now_floor++;
 				sleep(1);
 				//判断当前楼层是否有信号以及是否同向
-				if(true){
+				if(up[now_floor]){
 					lift_open();
 					sleep(1);
-					
+					V(panel);
+					sleep(1);
+				}
+			}		
 		else if(aim_floor<now_floor)
-			lift_down();
+			while(aim_floor!=now_floor){
+				now_floor--;
+				sleep(1);
+				//判断当前楼层是否有信号以及是否同向
+				if(down[now_floor]){
+					lift_open();
+					sleep(1);
+					V(panel);
+					sleep(1);
+				}
+			}
+		
 	}
 }
 
 process lift_panel(){
-	int aim_floor;
+	int aim_floor_panel;
 	while (true) {
-		aim_floor = isFloor();
-		/***
-		临界区
-		***/
-		V(panel);//控制panel进程睡眠
+		P(panel);//控制panel进程睡眠
+		aim_floor_panel = isFloor();
+		signal[aim_floor_panel] = true;
 	}
 }
 
@@ -55,14 +78,14 @@ process floor_fisrt() {
 	while (true) {
 		if (person_1 == 0) {
 			if (isPerson()) {
-				P(person);//有人则增加，人进电梯后V(Person)，进程通信
+				P(person_1);//有人则增加，人进电梯后V(Person)，进程通信
 				/***
 				临界区
 				***/
 				display(1, up);
 			}
 		}
-		else if (person == 1)
+		else if (person_1 == 1)
 			display(1, up);
 		else
 			printf("1 floor person error\n");
